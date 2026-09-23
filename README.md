@@ -1,2 +1,0 @@
-# jogo-de-ttp
-

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Mentor de Hábitos: O Jogo do Comportamento</title>
+  <style>
+    body {
+      margin: 0; font-family: 'Courier New', Courier, monospace;
+      background-color: #101010; color: #00ff00;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      height: 100vh; padding: 20px; box-sizing: border-box;
+    }
+    h1 { font-size: 20px; text-align: center; color: #fff; border-bottom: 2px solid #00ff00; padding-bottom: 10px; width: 100%; }
+    #score-board { font-size: 16px; margin: 10px 0; }
+    #game-container {
+      background: #1a1a1a; border: 2px solid #00ff00; border-radius: 8px;
+      width: 100%; max-width: 400px; padding: 15px; box-sizing: border-box;
+      display: flex; flex-direction: column; gap: 15px;
+    }
+    #scenario { font-size: 16px; line-height: 1.4; color: #fff; }
+    #options-container { display: flex; flex-direction: column; gap: 10px; }
+    .option-btn {
+      background: #333; color: #00ff00; border: 1px solid #00ff00;
+      padding: 12px; border-radius: 4px; font-size: 14px; text-align: left;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .option-btn:active { background: #00ff00; color: #101010; }
+    #feedback { font-size: 14px; font-style: italic; color: #ffcc00; display: none; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>MENTOR DE HÁBITOS</h1>
+  <div id="score-board">Mestria: <span id="score">0</span></div>
+
+  <div id="game-container">
+    <div id="scenario">Carregando...</div>
+    <div id="options-container"></div>
+    <div id="feedback"></div>
+  </div>
+
+  <script>
+    // 1. DADOS DO JOGO (SEU ROTEIRO)
+    const phases = [
+      {
+        text: "Alex entregou o relatório anual 3 dias antes do prazo. O trabalho está impecável. Como mentor, você deve garantir que Alex mantenha esse comportamento.",
+        options: [
+          { text: "Dar uma bronca porque poderia ter entregado 4 dias antes.", correct: false, comment: "Punição Positiva diminui a frequência. Alex pode parar de se esforçar." },
+          { text: "Ignorar, para ele não ficar mal acostumado.", correct: false, comment: "Isso é Extinção. Se não há reforço, o comportamento adiantado tende a sumir." },
+          { text: "Enviar um elogio por e-mail, destacando a eficiência.", correct: true, comment: "Reforço Positivo! Você adicionou um estímulo agradável, aumentando a chance dele repetir." }
+        ]
+      },
+      {
+        text: "Bia está muito estressada porque a caixa de som da obra vizinha está altíssima ao lado da mesa dela, impedindo o foco. Ela quer produzir mais.",
+        options: [
+          { text: "Dar um fone de ouvido com cancelamento de ruído para ela.", correct: true, comment: "Reforço Negativo! Você removeu o estímulo aversivo (barulho), reforçando o comportamento de buscar foco." },
+          { text: "Dar um bônus em dinheiro para ela aguentar o barulho.", correct: false, comment: "Isso é Reforço Positivo para a ação de 'aguentar', não resolve a causa da falta de foco." },
+          { text: "Mandar ela reclamar com o mestre de obras.", correct: false, comment: "Isso introduz um novo comportamento, mas não resolve o estímulo aversivo atual dela." }
+        ]
+      }
+    ];
+
+    // 2. VARIÁVEIS DE ESTADO
+    let currentPhaseIndex = 0;
+    let score = 0;
+
+    // 3. ELEMENTOS DA TELA
+    const scenarioEl = document.getElementById('scenario');
+    const optionsEl = document.getElementById('options-container');
+    const feedbackEl = document.getElementById('feedback');
+    const scoreEl = document.getElementById('score');
+
+    // 4. LÓGICA DO JOGO
+    function loadPhase(index) {
+      feedbackEl.style.display = 'none';
+      optionsEl.innerHTML = '';
+      
+      if (index >= phases.length) {
+        scenarioEl.textContent = "Parabéns! Você concluiu o treinamento básico de Mentor de Hábitos!";
+        return;
+      }
+
+      const phase = phases[index];
+      scenarioEl.textContent = phase.text;
+
+      phase.options.forEach(option => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = option.text;
+        btn.addEventListener('click', () => handleChoice(option, phase));
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function handleChoice(option, phase) {
+      if (feedbackEl.style.display === 'block') return; // Impede cliques múltiplos
+
+      if (option.correct) {
+        score += 10;
+        feedbackEl.style.color = '#00ff00';
+        feedbackEl.textContent = "CORRETO: " + option.comment + " (Toque na tela para próxima fase)";
+      } else {
+        feedbackEl.style.color = '#ffcc00';
+        feedbackEl.textContent = "INCORRETO: " + option.comment + " (Toque na tela para tentar novamente)";
+      }
+      feedbackEl.style.display = 'block';
+      scoreEl.textContent = score;
+
+      // Avançar ou recarregar ao clicar na tela
+      document.body.addEventListener('click', () => {
+        if (option.correct) {
+          currentPhaseIndex++;
+          loadPhase(currentPhaseIndex);
+        } else {
+          loadPhase(currentPhaseIndex); // Repetir fase
+        }
+      }, { once: true });
+    }
+
+    // Iniciar
+    loadPhase(currentPhaseIndex);
+  </script>
+</body>
+</html>
